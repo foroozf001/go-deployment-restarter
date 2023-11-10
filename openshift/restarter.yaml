@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: restarter
+  labels:
+    app.kubernetes.io/component: restarter
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: cbit-restarter-job-
+  name: cbit-restarter-job
+  labels:
+    app.kubernetes.io/component: restarter
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: restarter
+    spec:
+      imagePullSecrets:
+        - name: dq97wqp-cred
+      serviceAccountName: restarter
+      restartPolicy: Never
+      containers:
+        - name: go
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
+          image: cbit-docker.docker.devstack.vwgroup.com/codebeamer/restarter:0.2.3
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: DEPLOYMENT
+              value: stub
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: restarter
+  namespace: default
+  labels:
+    app.kubernetes.io/component: restarter
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - patch
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: restarter
+  namespace: default
+  labels:
+    app.kubernetes.io/component: restarter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: restarter
+subjects:
+- kind: ServiceAccount
+  name: restarter
+  namespace: default

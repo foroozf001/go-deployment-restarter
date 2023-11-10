@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: stub
+  name: stub
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: stub
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stub
+  name: stub
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: stub
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: stub
+    spec:
+      containers:
+      - image: httpd:latest
+        name: httpd
+        resources: {}
+status: {}
