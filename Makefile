@@ -61,7 +61,7 @@ changelog: ## Generate changelog
 	if [[ $(shell command -v changelog) ]]; then \
 		changelog ${NEW_VERSION} ${OLD_VERSION} . ; \
 	else \
-		echo 'download changelog binary and add it to your PATH (https://jfrog.devstack.vwgroup.com/artifactory/cbit-generic-snapshot)'; \
+		echo 'download changelog binary'; \
 	fi
 
 ##@ Test
@@ -80,4 +80,4 @@ test: ## Tests the restarter job
 	kubectl rollout status deploy/stub
 	kubectl apply -f openshift/restarter.yaml
 	kubectl wait --for=condition=ContainersReady pod -l app.kubernetes.io/component=restarter
-	kubectl logs -f job/cbit-restarter-job
+	kubectl logs -f job/restarter-job

@@ -9,8 +9,8 @@ metadata:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: cbit-restarter-job-
-  name: cbit-restarter-job
+  generateName: restarter-job-
+  name: restarter-job
   labels:
     app.kubernetes.io/component: restarter
     owner: foroozf001
