@@ -1,0 +1,10 @@
+# {{  .Version }} ({{ .Date }})
+
+## Artifacts
+
+* [go-restarter:{{ .Version }}](https://hub.docker.com/r/farazf001/go-restarter/tags)
+
+## Changes
+
+{{ range $hash, $message := .Commits }}* [{{ printf "%.10s" $hash }}](https://github.com/foroozf001/go-deployment-restarter/commit/{{ $hash }}) {{ $message }}
+{{ end }}

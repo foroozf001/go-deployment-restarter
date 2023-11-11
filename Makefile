@@ -7,7 +7,7 @@ BINARIES='docker' 'minikube' 'kubectl'
 PLATFORM='linux/amd64'
 USER=
 SECRET=
-IMAGE="restarter"
+IMAGE="farazf001/go-restarter"
 
 .PHONY: requirements
 requirements:
@@ -21,8 +21,16 @@ help: ## Displays help
 
 ##@ Development
 
+.PHONY: fmt
+fmt: ## Formats the source code
+	go fmt ./...
+
+.PHONY: vet
+vet: ## Validates the source code
+	go vet ./...
+
 .PHONY: build
-build: requirements ## Builds the image
+build: requirements fmt vet ## Builds the image
 	if [[ $$(uname -s) = "Darwin" ]];then \
 		echo OSX ; \
 		docker buildx build --platform $(PLATFORM) -t "${IMAGE}":$$(cat VERSION) . ; \
@@ -33,13 +41,13 @@ build: requirements ## Builds the image
 	docker tag "${IMAGE}":$$(cat VERSION) "${IMAGE}":latest
 
 .PHONY: run
-run: ## Builds and runs the image
+run: fmt vet ## Builds and runs the image
 	$(MAKE) build
 	docker run -it --rm "${IMAGE}":$$(cat VERSION)
 
 .PHONY: artifact
-artifact: ## Pushes the images to JFrog Artifactory
-	docker login cbit-docker.docker.devstack.vwgroup.com -u $(USER) -p $(SECRET)
+artifact: ## Pushes the images to dockerhub
+	docker login -u $(USER) -p $(SECRET)
 	docker push "${IMAGE}":$$(cat VERSION)
 	docker push "${IMAGE}":latest
 
@@ -47,6 +55,14 @@ artifact: ## Pushes the images to JFrog Artifactory
 clear: ## Removes the images
 	docker image rm "${IMAGE}":$$(cat VERSION)
 	docker image rm "${IMAGE}":latest
+
+.PHONY: changelog
+changelog: ## Generate changelog
+	if [[ $(shell command -v changelog) ]]; then \
+		changelog ${NEW_VERSION} ${OLD_VERSION} . ; \
+	else \
+		echo 'download changelog binary and add it to your PATH (https://jfrog.devstack.vwgroup.com/artifactory/cbit-generic-snapshot)'; \
+	fi
 
 ##@ Test
 
@@ -59,7 +75,7 @@ rm_minikube: requirements ## Removes the minikube cluster
 	minikube delete
 
 .PHONY: test
-test: ## Tests the restarter image
+test: ## Tests the restarter job
 	kubectl apply -f openshift/stub.yaml
 	kubectl rollout status deploy/stub
 	kubectl apply -f openshift/restarter.yaml
