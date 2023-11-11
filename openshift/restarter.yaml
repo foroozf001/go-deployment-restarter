@@ -4,6 +4,7 @@ metadata:
   name: restarter
   labels:
     app.kubernetes.io/component: restarter
+    owner: foroozf001
 ---
 apiVersion: batch/v1
 kind: Job
@@ -12,6 +13,7 @@ metadata:
   name: cbit-restarter-job
   labels:
     app.kubernetes.io/component: restarter
+    owner: foroozf001
   namespace: default
 spec:
   template:
@@ -19,8 +21,7 @@ spec:
       labels:
         app.kubernetes.io/component: restarter
     spec:
-      imagePullSecrets:
-        - name: dq97wqp-cred
+      imagePullSecrets: []
       serviceAccountName: restarter
       restartPolicy: Never
       containers:
@@ -32,7 +33,7 @@ spec:
             requests:
               cpu: 10m
               memory: 16Mi
-          image: cbit-docker.docker.devstack.vwgroup.com/codebeamer/restarter:0.2.3
+          image: farazf001/go-restarter:0.2.4
           env:
             - name: NAMESPACE
               valueFrom:
@@ -48,6 +49,7 @@ metadata:
   namespace: default
   labels:
     app.kubernetes.io/component: restarter
+    owner: foroozf001
 rules:
 - apiGroups:
   - apps
@@ -70,6 +72,7 @@ metadata:
   namespace: default
   labels:
     app.kubernetes.io/component: restarter
+    owner: foroozf001
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
